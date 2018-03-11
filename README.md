@@ -4,7 +4,7 @@
 
 This project currently in progress aim to provide a GUI and autonomous controller for GRBL CNC . 
 
-### Project targeted functionalities
+### Project targeted functionalities @V0
 
 - Do initialisation stuff (HOMING)
 - Read GRBL files from SDCard
