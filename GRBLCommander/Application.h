@@ -4,18 +4,20 @@
 
 #include "GRBLCommander_UI.h"
 
+using namespace GRBLCUI;
+
 namespace App {
   
   // top level application
-  class Application : public GRBLCUI::BaseUI {
+  class Application : public BaseUI {
     public:
        GRBLCUI::BaseWidget *current;
 
        // start the application
        virtual void startup();
        
-       virtual bool dispatchMessage(GRBLCUI::Message *msg);
-       virtual void sendMessage(GRBLCUI::Message *msg);
+       virtual bool dispatchMessage(Message *msg);
+       virtual void sendMessage(Message *msg);
        
     private:
        void clearScreen();
@@ -23,6 +25,21 @@ namespace App {
     
   };
 
+
+
+   class Screen : public BaseWidget {
+        public:
+        Screen(Application *_parent);
+        Screen();
+    
+        virtual void startup();
+        // draw the button
+        virtual void draw();
+        virtual void sendMessage(Message *msg);
+    
+    };
+
+  // test class iterator
   class TestIt : public GRBLCUI::Iterator {
       public:
         virtual void reset();
@@ -38,7 +55,11 @@ namespace App {
 // global instances
   
 extern App::Application mainApp;
+
 extern void StartUI();
+
+extern void LoopUI();
+
 
 
 #endif

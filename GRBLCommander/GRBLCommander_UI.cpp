@@ -57,9 +57,14 @@ namespace GRBLCUI {
       ///////////////////////////////////////////////////////////////
       // Base Widget
 
+        BaseWidget::BaseWidget() : BaseWidget(NULL) {
+          
+        }
+
       BaseWidget::BaseWidget(BaseUI *_parent) {
-         parent = _parent;
+         this->parent = _parent;
       }
+      
 
       void BaseWidget::sendMessage(Message *msg) {
          if (parent != NULL) {
@@ -68,6 +73,11 @@ namespace GRBLCUI {
          }
       }
 
+      void BaseWidget::setParent(BaseUI *_parent) {
+         this->parent = _parent;
+      }
+        
+
       /////////////////////////////////////////////////////////////////
       // Menu Widget
 
@@ -75,6 +85,9 @@ namespace GRBLCUI {
         
       }
 
+      Menu::Menu() : Menu(NULL) {       
+      }
+      
       void Menu::startup() {
         
       }
@@ -101,6 +114,7 @@ namespace GRBLCUI {
         }
         
         void Menu::MoveUp(){
+          Serial.println(selectedElement);
           if (selectedElement <= 0)
           {
              return;

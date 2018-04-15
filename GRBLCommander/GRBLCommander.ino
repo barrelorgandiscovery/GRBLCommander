@@ -4,26 +4,31 @@
 //
 
 #include <Wire.h>  // needed for oled display
+#include <SPI.h> // needed for sdcard
+
 #include "GRBLCommander_UI.h"
 #include "Application.h"
-#include "GRBLCommander_UI.h" // for iterator
+#include "debug.h"
 
 void setup() {
-
+   Serial.begin(115000);
+ 
    grbluic_init();
-   grbluic_drawtest();
+   
+   // grbluic_drawtest();
+   
    StartUI();
-
+   LoopUI();
 }
 
 
 void loop() {
-  // put your main code here, to run repeatedly:
 
-  // loop for serial events
-  // adjust the state of the GRBL command and grab the events for the UI
+  // peek input, 
+  // dispatch to the application
   
 
+ 
 }
 
 

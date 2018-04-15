@@ -49,6 +49,7 @@ namespace GRBLCUI {
     // every widget has a startup and draw methods
     class BaseWidget : public BaseUI {
        public:
+        BaseWidget();
         BaseWidget(BaseUI *_parent);
         // startup phase
         virtual void startup() = 0;
@@ -60,7 +61,8 @@ namespace GRBLCUI {
 
         // widgets may send messages upstream
         virtual void sendMessage(Message *msg);
-      
+        virtual void setParent(BaseUI *_parent);
+        
       protected:
         // every widgets has a parent, for dispatching events
         BaseUI *parent;
@@ -74,10 +76,12 @@ namespace GRBLCUI {
 
     // menu is a widget
     //  furnish an enumerator interface to display the elements
-    class Menu : BaseWidget {
+    class Menu : public BaseWidget {
 
         public:
           Menu(BaseUI *_parent);
+          Menu();
+
 
           void SetIterator(Iterator *_it);
           void SetSelected(uint8_t sel);
