@@ -340,9 +340,21 @@ boolean SDClass::begin(uint8_t csPin, int8_t mosi, int8_t miso, int8_t sck) {
     Return true if initialization succeeds, false otherwise.
 
    */
-  return card.init(SPI_HALF_SPEED, csPin, mosi, miso, sck) &&
-         volume.init(card) &&
-         root.openRoot(volume);
+   boolean cardinit = card.init(/* SPI_HALF_SPEED */ SPI_QUARTER_SPEED , csPin, mosi, miso, sck) ;
+   Serial.println("card init :");
+   Serial.println(cardinit);
+    delay(200);
+   boolean volumeinit = volume.init(card);
+   Serial.println("volume init :");
+   Serial.println(volumeinit);
+   
+   boolean openroot = root.openRoot(volume);
+   Serial.println("openroot :");
+   Serial.println(openroot);
+   
+  return cardinit &&
+         volumeinit &&
+         openroot;
 }
 
 //call this when a card is removed. It will allow you to inster and initialise a new card.
@@ -623,3 +635,4 @@ void File::rewindDirectory(void) {
 }
 
 SDClass SD;
+

@@ -808,3 +808,4 @@ char* OLEDDisplay::utf8ascii(String str) {
   // This will leak 's' be sure to free it in the calling function.
   return s;
 }
+

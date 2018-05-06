@@ -1,7 +1,11 @@
 
-#include <Arduino.h>
+#include "mySD.h"
+
+#include "GRBLCommander_UI.h"
 #include "Application.h"
 #include "MainScreen.h"
+#include "ChooseFileScreen.h"
+#include "SendFileScreen.h"
 #include "debug.h"
 
 
@@ -10,72 +14,118 @@ App::Application mainApp;
 
 
 void StartUI() {
-  
-   debug("init the application");
-   mainApp.startup();
-   debug("done");
+ 
   
    // init the keyboard
    
    pinMode(39,INPUT); 
    pinMode(36,INPUT);
 
+   delay(1000);
+  
+   // init the SDCard
+   if (!SD.begin(16 /*cs*/, 12 /*mosi */, 13/*miso*/, 14 /*sck */)) {
+      debug(">>> ERROR while initializing the SD Card");
+      
+      getDisplay()->drawString(0, 20, "SD Card Init Failed");
+      getDisplay()->display();
 
-  /*
-   // test for the menu
-   GRBLCUI::Menu m(&mainApp);
-   
-   // mainApp.current = &m;
-   App::TestIt mytestiterator;
-   m.SetIterator(&mytestiterator);
-   m.SetSelected(0);
-   m.draw();
+  
+      delay(1000);
+        // init the SDCard
+       if (!SD.begin(16 /*cs*/, 12 /*mosi */, 13/*miso*/, 14 /*sck */)) {
+          getDisplay()->drawString(0, 30, "Attempt #2 Failed");
+          getDisplay()->display();
+          delay(1000);
+          debug(">>> ERROR while initializing the SD Card Attempt 2");
+       }
+   }
+   debug("End of SD card initialized");
+ 
+   debug("init the application");
+   mainApp.startup();
+   debug("done");
+  
 
-   for(int i = 0; i < 20 ; i++) {
-     m.MoveDown();
-     m.draw();
-     delay(100);
-   }
-   
-   for(int i = 0; i < 20 ; i++) {
-     m.MoveUp();
-     m.draw();
-     delay(100);
-   }
-*/
+
 }
+
+#define VALIDATE_BUTTON_DELAY 200
+#define ANALOG_BUTTON_TIGGER 500
 
 extern void LoopUI() {
 
+    // trigger for button up
     bool k1state = false;
     bool k2state = false;
+    
   //  bool k3state = false;
+
+    int k1trigger = -1;
+    int k2trigger = -1;
+    
 
     while(true) {
         
         // check keyboard
         int p = analogRead(39);
-        if (p < 500 ) {
-            if (k1state == false) {
-              debug("key 1 pressed");
-              k1state = true;
-              GRBLCUI::KeyMessage key(&mainApp, 1);
-              mainApp.dispatchMessage(&key);
-            } 
+        if (p < ANALOG_BUTTON_TIGGER ) {
+           k1state = true;
         } else {
+           if (k1state == true) {
+              // activate the trigger
+              k1trigger = VALIDATE_BUTTON_DELAY;
+            } 
           k1state = false;
         }
         
         p = analogRead(36);
-        if (p < 500) {
-            if (k2state == false) {
-              debug("key 2 pressed");
-              k2state = true;
-              GRBLCUI::KeyMessage key(&mainApp, 2);
-              mainApp.dispatchMessage(&key);
-            }
+         if (p < ANALOG_BUTTON_TIGGER ) {
+           k2state = true;
         } else {
+           if (k2state == true) {
+              //activate the trigger
+              k2trigger = VALIDATE_BUTTON_DELAY;
+            } 
           k2state = false;
+          
+        }
+
+        // trigger the state, for both buttons
+        if (k1trigger > 0 && k2trigger > 0) {
+              GRBLCUI::KeyMessage key(&mainApp, 3);
+              debug("key 3 pressed");
+              mainApp.dispatchMessage(&key);
+              k1trigger = -1; // disable the triggers
+              k2trigger = -1;
+               
+        }
+
+
+        // trigger the state
+        if (k1trigger == 0) {
+              GRBLCUI::KeyMessage key(&mainApp, 1);
+               debug("key 1 pressed");
+              mainApp.dispatchMessage(&key);
+              k1trigger = -1;
+              
+        }
+
+        // trigger the state
+        if (k2trigger == 0) {
+              GRBLCUI::KeyMessage key(&mainApp, 2);
+               debug("key 2 pressed");
+              mainApp.dispatchMessage(&key);
+              k2trigger = -1;
+              
+        }
+
+        if (k1trigger > 0) {
+          k1trigger --;
+        }
+
+        if (k2trigger > 0) {
+          k2trigger --;
         }
 
 /*
@@ -92,24 +142,32 @@ extern void LoopUI() {
           k3state = false;
         }*/
         
-       delay(0.01);
+       delay(1); // in milliseconds
     }
 
   
 }
 
+namespace App {
+  
+///////////////////////////////////////////////////////////////////////////////////
+// Navigation Message
+
+      NavigationMessage::NavigationMessage(void *_sender, uint8_t _screen) : Message(NAVIGATION_MESSAGE,_sender) {
+         this->screen = _screen;  
+      }
 
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Main application
 
-namespace App {
 
 
 // screens
 
 MainScreen mainScreen(&mainApp);
-
+ChooseFileScreen chooseFileScreen(&mainApp);
+SendFileScreen sendFileScreen(&mainApp);
 
 
 // start the application, it kow all the screens, and initialize them
@@ -120,11 +178,9 @@ void Application::startup() {
     // start all the screens
  
     mainScreen.startup();
-    // recordScreen.startup();
-    
-    current = &mainScreen;
-    current->draw();
-
+    chooseFileScreen.startup();
+   
+    changeCurrent(&chooseFileScreen);
     
 }
 
@@ -149,6 +205,20 @@ void Application::changeCurrent(GRBLCUI::BaseWidget *next) {
 void Application::sendMessage(GRBLCUI::Message *msg) {
 
     // handle sub elements messages, upstreams to parents
+
+    if (msg->msg == NAVIGATION_MESSAGE)
+    {
+       NavigationMessage *navMsg = (NavigationMessage *)msg;
+       if (navMsg->screen == SEND_FILE_SCREEN) {
+          debug("change to screen sendfile");
+          char buffer[500] = "\0";
+          chooseFileScreen.getSelectedFile(&buffer[0]);
+          debug("selected file :");
+          debug(buffer);
+          sendFileScreen.SetFile(buffer);
+          changeCurrent(&sendFileScreen);
+       }
+    }
   
     /*
     if (msg->msg == APP_MESSAGE_GO_HOME) {
@@ -177,7 +247,6 @@ const char *TestIt::nextElement() {
       return NULL;
     }
     return t1[++it];
-           
     
 }
 
@@ -209,3 +278,4 @@ const char *TestIt::nextElement() {
     }
 
 }
+

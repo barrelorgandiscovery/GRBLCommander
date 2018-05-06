@@ -5,6 +5,7 @@
 // display handling 
 
 #include "SSD1306.h"
+#include "debug.h"
 
 static SSD1306  display(0x3c, 5, 4);
 
@@ -27,12 +28,11 @@ extern void grbluic_init()
   
 }
 
-extern void grbluic_drawtest() {
+extern void grbluic_drawwelcome() {
   // draw things
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_10);
-  display.drawString(0, 10, "Arial 10");
-
+  display.drawString(0, 10, "GRBL COMMANDER");
   display.display();
 }
 
@@ -100,6 +100,10 @@ namespace GRBLCUI {
          this->selectedElement = sel;
       }
 
+      int Menu::GetSelected() {
+        return this->selectedElement;
+      }
+
        void Menu::ResetSelected() {
          this->selectedElement = -1;   
        }
@@ -114,7 +118,7 @@ namespace GRBLCUI {
         }
         
         void Menu::MoveUp(){
-          Serial.println(selectedElement);
+          // Serial.println(selectedElement);
           if (selectedElement <= 0)
           {
              return;
@@ -126,7 +130,18 @@ namespace GRBLCUI {
           }
         }
 
-      void Menu::seek(int element, const char **out) {
+        void Menu::GetSelectedElement(char *outElement) {
+          if (selectedElement >= 0) {
+            it->reset();
+            const char *PTR = NULL;
+            
+            seek(selectedElement, &PTR);
+            char *origin = (char *)PTR;
+            strcpy(outElement, origin);
+          }
+        }
+
+        void Menu::seek(int element, const char **out) {
          if (it == NULL) {
              return;
          }
@@ -187,7 +202,31 @@ namespace GRBLCUI {
       }
       
       bool Menu::dispatchMessage(Message *msg) {
+         if (msg == NULL)
+          {
+            return false;
+          }
         
+          if (msg->msg == KEY_MSG) {
+    
+            KeyMessage *k = (KeyMessage *)msg;
+            switch(k->key) {
+               case 1:
+                 debug("move down");
+                 MoveDown();
+                 break;
+               case 2:
+                 debug("move up");
+                 MoveUp();
+                 break;
+               
+            };
+    
+            draw();
+            return true;
+            
+          }
+          return false;
       }
 
 }

@@ -1,5 +1,6 @@
 
 #include "MainScreen.h"
+#include "debug.h"
 
 using namespace GRBLCUI; 
 
@@ -32,7 +33,7 @@ namespace App {
     
     void MainScreen::startup() {
        
-       m_menu.setParent(parent);
+       m_menu.setParent(this);
        m_menu.SetIterator(&m_iterator);
        m_menu.SetSelected(0);
       
@@ -40,7 +41,7 @@ namespace App {
 
 
     void MainScreen::draw() {
-        Serial.println("drawing screen");
+        debug("drawing screen");
         m_menu.draw();
       
     }
@@ -77,3 +78,4 @@ namespace App {
   
 
 }
+

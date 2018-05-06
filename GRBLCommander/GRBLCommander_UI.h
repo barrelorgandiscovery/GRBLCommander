@@ -1,14 +1,14 @@
 #ifndef GRBLCOMMANDER_UI_h
 #define GRBLCOMMANDER_UI_h
 
-#include <Arduino.h>
+// #include <Arduino.h>
 #include "OLEDDisplay.h"
 
 // static initialization of the screen
 void grbluic_init();
 
 // test function
-void grbluic_drawtest();
+void grbluic_drawwelcome();
 
 // global access to screen functions
 OLEDDisplay *getDisplay();
@@ -24,12 +24,15 @@ namespace GRBLCUI {
           void *sender;
     };
     
-    #define KEY_MSG 1
+     #define KEY_MSG 1
+    
      class KeyMessage : public Message {
           public:
             KeyMessage(void *_sender, uint8_t _key);
             uint8_t key;
       };
+
+      
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -82,25 +85,29 @@ namespace GRBLCUI {
           Menu(BaseUI *_parent);
           Menu();
 
-
           void SetIterator(Iterator *_it);
           void SetSelected(uint8_t sel);
-          uint8_t GetSelected();
+          
+          int GetSelected();
+          void GetSelectedElement(char *outElement);
           void ResetSelected();
+          
           void MoveDown();
           void MoveUp();
+          
           virtual void startup();
           virtual void draw();
           virtual bool dispatchMessage(Message *msg);
-
+         
+          
         private:
           const uint8_t menusize = 6;
           const uint8_t lineheight = 10;
           Iterator *it = NULL;
           uint8_t menuElementStart = 0;
-          uint8_t selectedElement = -1; // no selected elements
-
+          int selectedElement = -1; // no selected elements
           void seek(int element, const char **out);
+       
         
     };
 

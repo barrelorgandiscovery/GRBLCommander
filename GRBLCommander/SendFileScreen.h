@@ -1,8 +1,10 @@
-#ifndef GRBLCOMMANDER_MAINSCREEN_h
-#define GRBLCOMMANDER_MAINSCREEN_h
+
+#ifndef GRBLCOMMANDER_SENDFILESCREEN
+#define GRBLCOMMANDER_SENDFILESCREEN
 
 #include "GRBLCommander_UI.h"
 #include "Application.h"
+
 
 using namespace GRBLCUI;
 
@@ -10,23 +12,10 @@ namespace App {
   
     /////////////////////////////////////////////////
     // main screen
-
-
-      // test class iterator
-      class MainListIterator : public Iterator {
-          public:
-            virtual void reset();
-            virtual const char *nextElement();
-          private:
-            int it = 0;
-            const char *current = NULL;
-      };
-     
-
     
-     class MainScreen : public Screen {
+     class SendFileScreen : public Screen {
      public:
-        MainScreen(Application *_parent);
+        SendFileScreen(Application *_parent);
      
         // startup phase
         virtual void startup();
@@ -36,16 +25,18 @@ namespace App {
         // dispatch the message and return if the message is consumed
         // this use a delegating model
         virtual bool dispatchMessage(Message *msg);
+
+        void SetFile(const char *filename);
         
      private:
+      
         Menu m_menu;
-        MainListIterator m_iterator;     
     };
-
 
 
 }
 
 
-#endif
 
+
+#endif

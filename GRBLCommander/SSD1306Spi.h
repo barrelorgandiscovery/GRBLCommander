@@ -148,3 +148,4 @@ class SSD1306Spi : public OLEDDisplay {
 };
 
 #endif
+

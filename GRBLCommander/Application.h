@@ -7,6 +7,19 @@
 using namespace GRBLCUI;
 
 namespace App {
+
+  #define NAVIGATION_MESSAGE 3
+
+
+  #define SEND_FILE_SCREEN 3
+
+  class NavigationMessage : public Message {
+      public:
+        NavigationMessage(void *_sender, uint8_t _screen);
+
+        uint8_t screen;
+  };
+  
   
   // top level application
   class Application : public BaseUI {
@@ -63,3 +76,4 @@ extern void LoopUI();
 
 
 #endif
+

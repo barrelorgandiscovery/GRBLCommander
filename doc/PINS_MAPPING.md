@@ -18,6 +18,7 @@
 |             | GPIO12          |      | SDCARD                 |
 |             | GPIO13          |      | SDCARD                 |
 |             | GPIO14          |      | SDCARD                 |
+|             |                 |      |                        |
 
 
 

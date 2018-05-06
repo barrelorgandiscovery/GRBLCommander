@@ -379,9 +379,9 @@ uint8_t Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin, int8_t mosiPin, 
   chipSelectHigh();
 
 #ifndef SOFTWARE_SPI
-  if (clockPin_ == -1)
+  if (clockPin_ == -1) {
     return setSckRate(sckRateID);
-  else 
+  } else 
     return true;
 #else  // SOFTWARE_SPI
   return true;
